@@ -1,0 +1,7 @@
+streamlit
+datetime
+pandas_datareader
+talib
+matplotlib
+numpy
+pandas
