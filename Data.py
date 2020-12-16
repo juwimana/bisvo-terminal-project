@@ -2,7 +2,6 @@
 import pandas as pd
 from pandas_datareader import data 
 import datetime
-import streamlit as st
 
 class Data:
 
@@ -10,12 +9,8 @@ class Data:
 	def stock_data(ticker:str,start:datetime.date,end:datetime.date):
 		stock_data = data.DataReader(ticker,'yahoo',start,end)
 		return stock_data
-
-	@staticmethod
-	def import_data(string:str):
-		return pd.read_csv(string)
-
-	@staticmethod
+		
+	@staticmethod	
 	def get_adj_close(ticker:str,start:datetime.date,end:datetime.date):
 		data = Data.stock_data(ticker,start,end)
 		adj_close = data["Adj Close"]
@@ -54,7 +49,7 @@ class Data:
 
 		return open_
 
-	@staticmethod
+	@staticmethod	
 	def get_high(ticker:str,start:datetime.date, end:datetime.date):
 		data = Data.stock_data(ticker,start,end)
 		high = data["High"]
@@ -67,7 +62,7 @@ class Data:
 
 		return high
 
-	@staticmethod
+	@staticmethod	
 	def get_low(ticker:str,start:datetime.date, end:datetime.date):
 		data = Data.stock_data(ticker,start,end)
 		low = data["Low"]

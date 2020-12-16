@@ -1,0 +1,10 @@
+# Quantitative Value Strategy
+`Value investing` means investing in the stocks that are cheapest relative to common measures of business value (like earnings or assets).
+
+Investors typically use a `composite` basket of valuation metrics to build robust quantitative value strategies. We will filter for stocks with the lowest percentiles on the following metrics:
+
+* Price-to-earnings ratio
+* Price-to-book ratio
+* Price-to-sales ratio
+* Enterprise Value divided by Earnings Before Interest, Taxes, Depreciation, and Amortization (EV/EBITDA)
+* Enterprise Value divided by Gross Profit (EV/GP)

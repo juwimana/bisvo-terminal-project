@@ -3,46 +3,29 @@ import matplotlib.dates as mdates
 import streamlit as st
 from Data import *
 import talib
-import numpy as np 
+import numpy as np
 
 my_year_month_fmt = mdates.DateFormatter('%m/%y')
 
 class Plot:
+	
 	@staticmethod
 	def historical_line_plot(ticker:str,start:datetime.date,end:datetime.date):
-		fig, ax = plt.subplots(figsize=(16,9))
-
-		ax.plot(Data.get_close(ticker,start,end).index,\
-			Data.get_close(ticker,start,end), label=ticker)
-
-		ax.set_xlabel('Date')
-		ax.set_ylabel('Adjusted closing price ($)')
-		ax.legend()
-
-		return fig
-
-	@staticmethod
-	def rolling_plot(ticker:str,window:int,start:datetime.date,end:datetime.date):
-		rolling = Data.get_close(ticker,start,end).rolling(\
-				  window=window).mean()
+		fig, ax = plt.subplots(2,1,figsize=(16,9))
+		close = Data.get_close(ticker,start,end)
 		panel_data = Data.stock_data(ticker,start,end)
-		stock = Data.get_close(ticker,start,end)
-		# Plot everything by leveraging the very powerful matplotlib package
-		fig, ax = plt.subplots(2,1,figsize=(13,8))
-		#Calculate full sample mean
-		full_sample_mean = stock.mean()
-		ax[0].plot(stock.index, stock, label=ticker)
-		ax[0].plot(rolling.index, rolling, label=str(window)+' days rolling')
-		ax[0].axhline(full_sample_mean,linestyle='--',color='red',label='Full Sample Mean')
-
+		
+		##Close price plot
+		ax[0].plot(close.index,close, label='Close')
 		ax[0].set_xlabel('Date')
 		ax[0].set_ylabel('Adjusted closing price ($)')
+		ax[0].axhline(close.mean(),linestyle='--',color='red',label='Mean Price')
 		ax[0].legend()
+		
+		#Volume traded
 		ax[1].plot(panel_data.loc[start:end,].index, panel_data.loc[start:end],label='Volume Traded')
-
 		ax[1].set_ylabel('Volume Traded')
 		ax[1].xaxis.set_major_formatter(my_year_month_fmt)
-
 		return fig
 
 	@staticmethod
@@ -68,7 +51,6 @@ class Plot:
 		ax_wr.plot(panel_data.index, wr,color="#2413bd",label="Williams %R (WILLR)")
 		ax_wr.legend(loc='best')
 		ax_wr.plot(panel_data["Adj Close"])
-
 		return fig
 
 	@staticmethod
@@ -82,37 +64,53 @@ class Plot:
 		ax.plot(panel_data.index,lowerband,label="Lowerband",linewidth=1)
 		ax.legend(loc="best")
 		ax.xaxis.set_major_formatter(my_year_month_fmt)
-
+		plt.ion()
 		return fig
 
 	@staticmethod
-	def ema_plot(ticker:str,span:int, start:datetime.date,end:datetime.date):
-		panel_data = Data.stock_data(ticker,start,end)
+	def macd_plot(ticker:str,start:datetime.date,end:datetime.date):
+		"""
+		Plots the Moving Average Convergence/Divergence (MACD) crossover
+		to determine when to buy and sell stock
+		"""
 		close = Data.get_close(ticker,start,end)
-		ema_short = close.ewm(span=span, adjust=False).mean()
+
+		####Calculate the short and long exponential moving average
+		shortEMA = close.ewm(span=12,adjust=False).mean()
+		longEMA = close.ewm(span=26,adjust=False).mean()
+
+		#calculate MACD line
+		MACD = shortEMA - longEMA
+
+		#calculate the signal line
+		signal = MACD.ewm(span=9,adjust=False).mean()
+
+		# panel_data = Data.stock_data(ticker,start,end)
+		# close = Data.get_close(ticker,start,end)
+		ema_short = close.ewm(span=12, adjust=False).mean()
 
 		# Taking the difference between the prices and the EMA timeseries
 		trading_positions_raw = close - ema_short
 		trading_positions_raw.tail()
 
 		# Taking the sign of the difference to determine whether the price or the EMA is greater and then multiplying by 1/3
-		trading_positions = trading_positions_raw.apply(np.sign) * 1/2
+		trading_positions = trading_positions_raw.apply(np.sign) * 1
 		trading_positions.tail()
 
 		# Lagging our trading signals by one day.
 		trading_positions_final = trading_positions.shift(1)
-		fig, (ax,ax2) = plt.subplots(2,1,figsize=(13,8))
 
-		ax.plot(close.loc[start:end,].index, close.loc[start:end], label=ticker)
-		ax.plot(ema_short.loc[start:end,].index, ema_short.loc[start:end], label ='Span '+str(span)+'-days EMA')
-		ax.legend(loc='best')
-		ax.set_ylabel('Price in $')
-		ax.xaxis.set_major_formatter(my_year_month_fmt)
+		#plot chart
+		fig, ax = plt.subplots(2,1,figsize=(13,8))
 
-		ax2.plot(trading_positions_final.loc[start:end,].index, trading_positions_final.loc[start:end],label='Trading position')
-		ax2.set_ylabel('Trading position-'+str(span))
-		ax2.xaxis.set_major_formatter(my_year_month_fmt)
+		ax[0].plot(close.index, MACD,label=f'MACD')
+		ax[0].plot(close.index, signal,label =f'Signal Line')
+		ax[0].legend(loc='best')
+		ax[0].xaxis.set_major_formatter(my_year_month_fmt)
 
+		ax[1].plot(trading_positions_final.loc[start:end,].index, trading_positions_final.loc[start:end],label='Trading position')
+		ax[1].set_ylabel('Trading position')
+		ax[1].xaxis.set_major_formatter(my_year_month_fmt)
 		return fig
 
 	@staticmethod
@@ -161,7 +159,6 @@ class Plot:
 		ax[2].plot(stock_sd['Strategy'].cumsum().apply(np.exp),label = "Strategy",color="green")
 		ax[2].legend(loc="best")
 		ax[2].xaxis.set_major_formatter(my_year_month_fmt)
-
 		return fig
 
 	@staticmethod
@@ -185,5 +182,62 @@ class Plot:
 
 		ax_ht_sine.legend(loc="best")
 		ax_ht_sine.set_ylabel('Hilbert Transform - SineWave')
-
 		return fig
+
+
+	@staticmethod
+	def pie_chart(df):
+
+		#plt.style.use('seaborn-poster')
+		###Visualization of Portfolio
+		#df = df.index
+		slices = df.fillna('Unknown').groupby(by=["Sector"])['Current Price'].count()
+		labels = sorted(list(df['Sector'].fillna('Unknown').astype('str').unique()))
+
+		explode = [0,0,0,0.1,0,0,0]
+		# fig, ax = plt.subplots()
+		fig = plt.figure()
+		ax = fig.add_subplot(121)
+		ax.pie(slices, labels=labels,autopct='%1.1f%%',textprops={'fontweight':'light','fontsize': 6,'fontfamily':'Times New Roman'},
+			labeldistance=1.1,wedgeprops={'linewidth':.25,'edgecolor':'k'})
+		return fig
+		
+
+	@staticmethod
+	def stacked_bar(df,position):
+
+		if position == 'Open':
+
+			fig, ax = plt.subplots(figsize = (13,10.25))
+			df = df.sort_values('Dollar Return', ascending=False)
+			labels = df.index
+			total_gain_loss = df['Dollar Return']
+			cost = df['Total Cost']
+			colors = ['#34a853','#fbbc04','#ea4335']
+
+			ax.bar(labels,total_gain_loss,bottom=cost,color=colors[0],align='center',
+					label='Total Gain/Loss')
+			ax.bar(labels,cost,align='center',color=colors[2], label='Cost')
+			ax.set_xlabel('Ticker')
+			ax.set_ylabel('Currency USD ($)')
+			ax.set_xticklabels(labels, rotation=45, ha='right')
+			ax.legend(loc='best')
+			return fig
+
+		elif position == 'Closed':
+
+			fig, ax = plt.subplots(figsize = (13,9.5))
+			df = df.sort_values('Dollar Return', ascending=False)
+			labels = df.index
+			total_gain_loss = df['Dollar Return']
+			colors = ['#34a853','#fbbc04','#ea4335']
+
+			ax.bar(labels,total_gain_loss,color=colors[0],align='center',
+					label='Total Gain/Loss')
+			ax.set_xlabel('Ticker')
+			ax.set_ylabel('Currency USD ($)')
+			ax.set_xticklabels(labels, rotation=45, ha='right')
+			ax.legend(loc='best')
+			return fig
+
+

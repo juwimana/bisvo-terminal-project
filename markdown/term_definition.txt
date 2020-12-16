@@ -1,0 +1,16 @@
+1. #### [Word Cloud](https://dictionary.cambridge.org/dictionary/english/word-cloud)
+A word cloud is an `electronic image` that shows words used in a particular piece of electronic text or series of texts. The words are `different sizes according to how often they are used in the text`
+
+2. #### [Ticker Symbol](https://www.investopedia.com/terms/t/tickersymbol.asp)
+A ticker symbol is an `arrangement of characters`,  usually, letters, representing particular securities listed or traded publicly.When a company issues securities to the public marketplace, it selects an available ticker symbol for its shares.
+Investors and traders `use the ticker symbol to place trade orders`.Every listed security has a `unique ticker symbol`, facilitating the vast array of trade orders that flow through the financial markets every day.
+
+3. #### [Historical Returns](https://www.investopedia.com/terms/h/historical-returns.asp)
+Historical returns are often associated with the `past performance` of a security or index, such as the S&P 500. Investors study historical return data when trying to `forecast future returns` or to estimate how a security might react in a situation.Calculating the historical return is done by `subtracting the most recent price from the oldest price and divide the result by the oldest price`.
+
+4. #### [Historical Stock Price](https://www.investopedia.com/ask/answers/03/103103.asp)
+Looking at a company's historical stock performance is useful in `understanding investors' perception` of the company and the `outlook for its future prospects`.
+
+5. #### [Bull/Bear Ratio](https://www.investopedia.com/terms/b/bullbearratio.asp#:~:text=The%20bull%2Fbear%20ratio%20\(sometimes,polled%20directly%20from%20market%20professionals.)
+The Bull/Bear ratio is an economic indicator that tracks market sentiment by surveying professional financial advisors.
+The indicator is `published on a weekly-basis` by the financial data firm `Investor's Intelligence`. If the `ratio is greater than one, there is greater bullish sentiment` since more advisors expect the market to rise; and `bearish if the ratio is less than one`.
